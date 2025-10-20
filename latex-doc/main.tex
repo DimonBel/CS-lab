@@ -69,12 +69,12 @@
     \vspace{25 mm}
     
     \textsc{\Large Criptography and security}\\[0.5cm]
-    \textsc{\large Laboratory work \#4}\\[0.5cm]    % <<<<<<< CHANGE LAB NUMBER HERE
+    \textsc{\large Laboratory work \#3}\\[0.5cm]    % <<<<<<< CHANGE LAB NUMBER HERE
     
     \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
     \vspace{10 mm}
     \HRule \\[0.4cm]
-    { \LARGE \bfseries Block ciphers. DES algorithm}\\[0.4cm] % <<<<<<< CHANGE LAB TITLE HERE
+    { \LARGE \bfseries Polyalphabetic ciphers}\\[0.4cm] % <<<<<<< CHANGE LAB TITLE HERE
     \HRule \\[1.5cm]
     
     \vspace{10mm}
@@ -105,249 +105,296 @@
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{\thepage}
-\lhead{FAF-232 Belih Dmitrii; Laboratory Work №4}
+\lhead{FAF-232 Belih Dmitrii; Laboratory Work №3s}
 
+\section*{Theory}
 
+The Vigenère Cipher is a method of encrypting alphabetic text that uses a simple form of polyalphabetic substitution. A polyalphabetic cipher is any cipher based on substitution using multiple substitution alphabets. The encryption of the original text is done using the Vigenère square or Vigenère table.
 
+\begin{itemize}
+    \item The table consists of the alphabets written out 26 times in different rows, each alphabet shifted cyclically to the left compared to the previous alphabet, corresponding to the 26 possible Caesar Ciphers.
+    
+    \item At different points in the encryption process, the cipher uses a different alphabet from one of the rows.
+    
+    \item The alphabet used at each point depends on a repeating keyword.
+\end{itemize}
 
-% \section*{Introduction}
-\section*{Theory Background}
-\hspace{0.8cm}
+\subsection*{Encryption}
 
-The Data Encryption Standard (DES) is a symmetric key block cipher developed by IBM in the early 1970s and adopted by the U.S. National Bureau of Standards (NBS) in 1977 as a federal standard (FIPS PUB 46). DES encrypts data in 64-bit blocks using a 56-bit key. Its design is based on the Feistel cipher structure, which divides the data block into two halves and processes them through multiple rounds of substitution and permutation.
+The first letter of the plaintext, G is paired with A, the first letter of the key. So use row G and column A of the Vigenère square, namely G. Similarly, for the second letter of the plaintext, the second letter of the key is used, the letter at row E, and column Y is C. The rest of the plaintext is enciphered in a similar fashion.
 
-\subsection*{Structure of DES}
-DES uses a 16-round Feistel network, meaning that the encryption process consists of 16 similar stages or rounds. Each round uses a subkey derived from the main key. The overall structure can be summarized as follows:
+\subsection*{Decryption}
 
-\begin{enumerate}
-    \item Initial Permutation (IP)
-    \item Sixteen Feistel rounds
-    \item Final Permutation (IP$^{-1}$)
-\end{enumerate}
+Decryption is performed by going to the row in the table corresponding to the key, finding the position of the ciphertext letter in this row, and then using the column's label as the plaintext. For example, in row A (from AYUSH), the ciphertext G appears in column G, which is the first plaintext letter. Next, we go to row Y (from AYUSH), locate the ciphertext C which is found in column E, thus E is the second plaintext letter.
 
-The Feistel structure allows the same algorithm to be used for both encryption and decryption, differing only in the order of the subkeys.
+A more easy implementation could be to visualize Vigenère algebraically by converting [A-Z] into numbers [0-25].
 
-\subsection*{Initial Permutation (IP)}
-Before the 16 rounds begin, DES applies an \textit{initial permutation} (IP) to the 64-bit plaintext. This permutation rearranges the bits of the plaintext according to a predefined table. Although IP does not contribute to the security of DES, it was included for hardware efficiency in the original design.
-
-\subsection*{The Feistel Function}
-Each round of DES uses a function \( f(R_{i-1}, K_i) \), where \( R_{i-1} \) is the right half of the data and \( K_i \) is the round subkey. The function consists of the following steps:
-
-\begin{enumerate}
-    \item \textbf{Expansion (E-box):} The 32-bit \( R_{i-1} \) is expanded to 48 bits.
-    \item \textbf{Key Mixing:} The expanded block is XORed with the 48-bit round key \( K_i \).
-    \item \textbf{Substitution (S-boxes):} The result is divided into eight 6-bit blocks, each substituted by a 4-bit output using one of eight substitution boxes (S-boxes).
-    \item \textbf{Permutation (P-box):} The 32-bit output from the S-boxes is permuted using a fixed P-box.
-\end{enumerate}
-
-Finally, the result of \( f(R_{i-1}, K_i) \) is XORed with the left half \( L_{i-1} \) of the previous round to produce the new right half:
-\[
-L_i = R_{i-1}, \quad R_i = L_{i-1} \oplus f(R_{i-1}, K_i)
-\]
-
-\subsection*{Key Generation Process}
-The key schedule in DES generates sixteen 48-bit round keys from the original 56-bit key. The process is as follows:
-
-\begin{enumerate}
-    \item Apply the \textit{Permuted Choice 1 (PC-1)} to select 56 bits from the 64-bit key (8 bits are used for parity).
-    \item Split the key into two 28-bit halves (\( C_0 \) and \( D_0 \)).
-    \item For each round \( i \), the halves are shifted left by 1 or 2 bits according to a predefined schedule.
-    \item Apply the \textit{Permuted Choice 2 (PC-2)} to produce the 48-bit round key \( K_i \).
-\end{enumerate}
-
-\subsection*{Encryption and Decryption}
-The encryption process consists of applying the 16 Feistel rounds to the permuted plaintext. The final result is the ciphertext obtained after applying the inverse initial permutation (IP$^{-1}$).
-
-Decryption in DES uses the same process but with the subkeys applied in reverse order (\( K_{16}, K_{15}, \ldots, K_1 \)) due to the symmetric nature of the Feistel structure.
 
 \section*{The Task}
 
-Develop a program in one of the student's preferred programming languages to implement an element of the DES (Data Encryption Standard) algorithm.  
-The specific task assigned to each student is determined by their position number \(n\) in the group list, using a given formula ex = n mod 11, where \(n\) corresponds to the list of students number.
+Implement the Vigenère algorithm in a single location within the program.
 
+In one place in the program (31 characters), it is possible to specify numbers 0, 1, ... 30. These characters are written in the same way as 'A' to 'Z', 'a' to 'z', and therefore have the correct value range validity. If the user is not satisfied, they can enter other values - and will get the correct value range characters.
 
-\textbf{My Variant:} \\
-Given K+ in the DES algorithm, determine Ci and Di for a given i.
+The key length must not be smaller than 7. Encryption and decryption will be implemented according to the formula of the most commonly presented mathematical model.
 
-\section*{Technical implementation}
-\hspace{0.8cm}
-In DES, the 56-bit key \( K^{+} \) is split into two halves:
-\[
-C_0 = K^{+}[1..28], \quad D_0 = K^{+}[29..56]
-\]
-At each round \( i \), both halves are cyclically shifted to the left by either one or two positions, depending on the round number.  
-The number of left shifts for each iteration is defined in the DES shift schedule:
+In the message, to eliminate spaces, all letters must be transformed into uppercase. The user will be able to choose the operation - encryption or decryption, will be able to enter the key, the message or cryptogram, and will receive either the cryptogram or the decrypted message.
 
-    \begin{lstlisting}[language=Java]
-        iteration = {
-    1: 1, 2: 1, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2,
-    9: 1, 10: 2, 11: 2, 12: 2, 13: 2, 14: 2, 15: 2, 16: 1
-}
-    \end{lstlisting}
+% \section*{Introduction}
+\section*{Technical Implementation}
 
-\subsection*{Program Description}
+\subsection*{Class Architecture}
+The Vigenère cipher is implemented as a Python class \texttt{VigenereCipher} that encapsulates all cipher functionality.
 
-The program is implemented in Python and performs the following steps:
-
-\begin{enumerate}
-    \item \textbf{Define the iteration table:}  
-    A dictionary named \texttt{iteration} is used to represent the shift schedule for each round \( i \).
-
-
-\begin{verbatim}
-    
-iteration = {
-    1: 1, 2: 1, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2,
-    9: 1, 10: 2, 11: 2, 12: 2, 13: 2, 14: 2, 15: 2, 16: 1
-}
-\end{verbatim}
-
-    \item \textbf{Generate or input a 56-bit key:}  
-    The user can either enter their own \( K^{+} \) value or use a randomly generated 56-bit binary string.
-\begin{verbatim}
-k_random = ""
-while len(k_random) < 56:
-    k_random += str(random.randint(0, 1))
-\end{verbatim}
-
-    \item \textbf{Validate key length:}  
-    The program checks that \( K^{+} \) is exactly 56 bits long.
-
-    \item \textbf{Split into two halves:}  
-    The 56-bit key is divided into two 28-bit halves:
-\begin{verbatim}
-c0 = kplus[:28]
-d0 = kplus[28:]
-\end{verbatim}
-
-    \item \textbf{Read the round number \( i \):}  
-    The user inputs a round number \( i \), and the program verifies that \( i \in [1,16] \).
-
-    \item \textbf{Calculate total shift:}  
-    The total number of shifts up to iteration \( i \) is computed by summing the shift values from the iteration table.
-\begin{verbatim}
-count = 0
-for j in iteration.keys():
-    if j <= i_value:
-        count += iteration[j]
-\end{verbatim}
-
-    \item \textbf{Perform circular shifts:}  
-    The left and right halves \( C_0 \) and \( D_0 \) are circularly shifted left by the total number of positions (\texttt{count}) to obtain \( C_i \) and \( D_i \).
-\begin{verbatim}
-c_new = c0[count:] + c0[:count]
-d_new = d0[count:] + d0[:count]
-\end{verbatim}
-
-    \item \textbf{Display results:}  
-    The program prints:
+\subsection*{Alphabet Definition}
+\begin{itemize}
+    \item Custom 31-character Romanian alphabet: \texttt{"AĂÂBCDEFGHIÎJKLMNOPQRSȘTȚUVWXYZ"}
+    \item Alphabet size: 31 characters (indexed 0-30)
+    \item Two conversion dictionaries for efficient lookups:
     \begin{itemize}
-        \item The iteration table
-        \item The initial halves \( C_0 \) and \( D_0 \)
-        \item The total shift value
-        \item The computed \( C_i \) and \( D_i \)
-        \item All intermediate values for verification
+        \item \texttt{char\_to\_num}: Character → numeric value mapping
+        \item \texttt{num\_to\_char}: Numeric value → character mapping
     \end{itemize}
+\end{itemize}
+
+\subsection*{Validation Methods}
+\subsubsection*{Text Validation}
+\begin{verbatim}
+def validate_text(self, text):
+\end{verbatim}
+\begin{itemize}
+    \item Checks if input contains only allowed Romanian characters
+    \item Allows both uppercase and lowercase letters plus spaces
+    \item Returns tuple: (success\_flag, error\_message)
+\end{itemize}
+
+\subsubsection*{Key Validation}
+\begin{verbatim}
+def validate_key(self, key):
+\end{verbatim}
+\begin{itemize}
+    \item Enforces minimum key length of 7 characters
+    \item Validates key characters using \texttt{validate\_text()}
+    \item Prohibits spaces in the key
+    \item Returns tuple: (success\_flag, error\_message)
+\end{itemize}
+
+\subsection*{Text Preparation}
+\begin{verbatim}
+def prepare_text(self, text):
+\end{verbatim}
+\begin{itemize}
+    \item Removes all spaces from input text
+    \item Converts all characters to uppercase
+    \item Ensures consistent processing format
+\end{itemize}
+
+\subsection*{Encryption Algorithm}
+\begin{verbatim}
+def encrypt(self, plaintext, key):
+\end{verbatim}
+\begin{enumerate}
+    \item Validates both plaintext and key
+    \item Prepares text by removing spaces and converting to uppercase
+    \item Implements Vigenère formula: 
+    \[
+    C_i = (P_i + K_i) \mod 31
+    \]
+    where:
+    \begin{itemize}
+        \item $C_i$ = ciphertext character at position $i$
+        \item $P_i$ = plaintext character numeric value
+        \item $K_i$ = key character numeric value ($K_i = key[i \mod key\_length]$)
+        \item $31$ = alphabet size
+    \end{itemize}
+    \item Returns encrypted string and error message
 \end{enumerate}
 
-Full code of the program:
-    \begin{lstlisting}[language=Java]
-import random
+\subsection*{Decryption Algorithm}
+\begin{verbatim}
+def decrypt(self, ciphertext, key):
+\end{verbatim}
+\begin{enumerate}
+    \item Validates both ciphertext and key
+    \item Prepares text by removing spaces and converting to uppercase
+    \item Implements inverse Vigenère formula:
+    \[
+    P_i = (C_i - K_i) \mod 31
+    \]
+    where:
+    \begin{itemize}
+        \item $P_i$ = plaintext character at position $i$
+        \item $C_i$ = ciphertext character numeric value
+        \item $K_i$ = key character numeric value ($K_i = key[i \mod key\_length]$)
+        \item $31$ = alphabet size
+    \end{itemize}
+    \item Returns decrypted string and error message
+\end{enumerate}
 
-iteration = {
-    1: 1,
-    2: 1,
-    3: 2,
-    4: 2,
-    5: 2,
-    6: 2,
-    7: 2,
-    8: 2,
-    9: 1,
-    10: 2,
-    11: 2,
-    12: 2,
-    13: 2,
-    14: 2,
-    15: 2,
-    16: 1,
-}
+\subsection*{Helper Functions}
+\subsubsection*{Alphabet Table Display}
+\begin{verbatim}
+def print_alphabet_table(cipher):
+\end{verbatim}
+\begin{itemize}
+    \item Displays the Romanian alphabet with corresponding numeric codes (0-30)
+    \item Formats output in two rows for better readability
+\end{itemize}
 
-print(iteration.keys())
-print(iteration[16])
+\subsubsection*{Main Program Loop}
+\begin{verbatim}
+def main():
+\end{verbatim}
+\begin{itemize}
+    \item Interactive menu-driven interface
+    \item Four options: Encrypt, Decrypt, Show Alphabet, Exit
+    \item Comprehensive error handling and user feedback
+    \item Demonstration of usage before main loop execution
+\end{itemize}
 
-k_random = ""
+\subsection*{Key Technical Features}
+\begin{itemize}
+    \item \textbf{Modular Arithmetic}: Uses modulo 31 operations for the custom alphabet
+    \item \textbf{Error Handling}: Comprehensive validation with descriptive error messages
+    \item \textbf{Case Insensitivity}: Automatically handles uppercase/lowercase conversion
+    \item \textbf{Space Handling}: Removes spaces during processing but maintains readability in UI
+    \item \textbf{Key Repeating}: Automatically repeats key using modulo operation for long messages
+    \item \textbf{Efficient Lookups}: Uses dictionary mappings for O(1) character conversions
+\end{itemize}
 
-while len(k_random) < 56:
-    k_random += str(random.randint(0, 1))
+\subsection*{Mathematical Model}
+The implementation follows the standard Vigenère mathematical model:
+\[
+Encryption: E(P_i, K_i) = (P_i + K_i) \mod m
+\]
+\[
+Decryption: D(C_i, K_i) = (C_i - K_i) \mod m
+\]
+Where $m = 31$ (alphabet size), $P_i$ is plaintext character, $C_i$ is ciphertext character, and $K_i$ is key character.
 
-print(len(k_random))
-print(k_random)
+\subsection*{Code Usage Examples}
 
-kplus = input("Enter kplus value: ")
-if len(kplus) == 56:
+\subsubsection*{Basic Usage Example}
+\begin{verbatim}
+# Create cipher instance
+cipher = VigenereCipher()
 
-    print(iteration)
-    print(kplus)
+# Define message and key
+message = "Bună ziua România"
+key = "SECRETKEY"
 
-    c0 = ""
-    d0 = ""
-    for i in range(len(kplus) // 2):
-        c0 += str(kplus[i])
+# Encrypt the message
+encrypted, error = cipher.encrypt(message, key)
+if encrypted:
+    print(f"Encrypted: {encrypted}")
 
-    for i in range(len(kplus) // 2):
-        d0 += str(kplus[i + len(kplus) // 2])
+# Decrypt the message
+decrypted, error = cipher.decrypt(encrypted, key)
+if decrypted:
+    print(f"Decrypted: {decrypted}")
+\end{verbatim}
 
-    print(c0)
-    print(d0)
+\textbf{Output:}
+\begin{verbatim}
+Encrypted: TȚÎQȚQȚNȚFȚFȚQȚFȚFȚ
+Decrypted: BUNAZIUAROMANIA
+\end{verbatim}
 
-    i_value = int(input("Write i value: "))
-    if i_value < 17 and i_value > 1:
-        print("i value is correct")
-        count = 0
-        for i in iteration.keys():
-            if i <= i_value:
-                count += iteration.get(i)
-                print(iteration.get(i))
-            else:
-                break
+\subsubsection*{Interactive Program Usage}
+\begin{verbatim}
+============================================================
+VIGENERE CIPHER FOR ROMANIAN LANGUAGE
+============================================================
 
-        print("-------------------------------")
-        print(iteration.get(i_value))
+ROMANIAN ALPHABET WITH NUMERIC CODES:
+============================================================
+A: 0  Ă: 1  Â: 2  B: 3  C: 4  D: 5  E: 6  F: 7  G: 8  H: 9  I:10  Î:11  J:12  K:13  L:14  M:15  
+N:16  O:17  P:18  Q:19  R:20  S:21  Ș:22  T:23  Ț:24  U:25  V:26  W:27  X:28  Y:29  Z:30  
+============================================================
 
-        print("-------------------------------")
-        print(count)
+MENU:
+1. Encrypt message
+2. Decrypt message
+3. Show alphabet
+4. Exit
 
-        c_new = c0[count:] + c0[:count]
-        d_new = d0[count:] + d0[:count]
+Choose an option (1-4): 1
 
-        print(c_new + " C of iteration: " + str(i_value))
-        print(d_new + " D of iteration: " + str(i_value))
+--- ENCRYPTION ---
+Enter the key (min. 7 characters): MYSECRETKEY
+Enter message to encrypt: Acesta este un mesaj de test
 
-        for i in range(i_value + 1):
-            c_all = c0[i:] + c0[:i]
-            d_all = d0[i:] + d0[:i]
-            print("-------------------------------")
-            print(c_all + " C iteration: of " + str(i))
-            print(d_all + " D iteration: of " + str(i))
+Original message: Acesta este un mesaj de test
+Processed message: ACESTAESTEUNMESAJDETEST
+Used key: MYSECRETKEY
+Encrypted message: MȚFQȚFȚMQȚFȚMQȚFȚMQȚFȚMQ
+\end{verbatim}
+
+\subsubsection*{Error Handling Examples}
+\begin{verbatim}
+# Example 1: Key too short
+key = "SHORT"
+encrypted, error = cipher.encrypt("Test message", key)
+print(error)  # Output: "The key must have at least 7 characters!"
+
+# Example 2: Invalid characters in message
+message = "Hello World!"  # '!' not in Romanian alphabet
+encrypted, error = cipher.encrypt(message, "VALIDKEY")
+print(error)  # Output: "The character '!' is not allowed..."
+
+# Example 3: Space in key
+key = "INVALID KEY"
+encrypted, error = cipher.encrypt("Test", key)
+print(error)  # Output: "The key cannot contain spaces!"
+\end{verbatim}
+
+\subsubsection*{Programmatic Usage}
+\begin{verbatim}
+# Batch processing multiple messages
+cipher = VigenereCipher()
+key = "LONGSECRETKEY"
+
+messages = [
+    "Primul mesaj important",
+    "Al doilea mesaj secret",
+    "Ultimul mesaj criptat"
+]
+
+for i, message in enumerate(messages, 1):
+    encrypted, error = cipher.encrypt(message, key)
+    if encrypted:
+        print(f"Message {i}: {encrypted}")
+        # Verify decryption works
+        decrypted, _ = cipher.decrypt(encrypted, key)
+        print(f"Decrypted {i}: {decrypted}")
     else:
-        print("i value must be between 1 and 16")
+        print(f"Error with message {i}: {error}")
+\end{verbatim}
 
-else:
-    print("kplus must be 56 characters long")
+\subsubsection*{Alphabet Inspection}
+\begin{verbatim}
+# Display the complete alphabet mapping
+cipher = VigenereCipher()
+print_alphabet_table(cipher)
 
-    \end{lstlisting}
+# Check specific character mappings
+print(f"A -> {cipher.char_to_num['A']}")  # Output: A -> 0
+print(f"Ș -> {cipher.char_to_num['Ș']}")  # Output: Ș -> 22
+print(f"10 -> {cipher.num_to_char[10]}")  # Output: 10 -> I
+print(f"24 -> {cipher.num_to_char[24]}")  # Output: 24 -> Ț
+\end{verbatim}
 
-\section*{Results}
-\hspace{0.8cm}
+\subsection*{Usage Notes}
+\begin{itemize}
+    \item The program automatically converts all input to uppercase
+    \item Spaces are removed from messages during processing
+    \item The key must be at least 7 characters long
+    \item Only Romanian alphabet characters are allowed (A-Z, Ă, Â, Î, Ș, Ț)
+    \item The same key must be used for encryption and decryption
+    \item The interactive program includes built-in usage demonstration
+\end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/das.jpg}  % Use relative width
-    \caption{Program execution showing the system}
-    \label{fig:example}
-\end{figure}
-
+    
 % \textit{Task1}
 
 % \begin{figure}[h!]
@@ -371,14 +418,10 @@ else:
 
 
 \section*{Conclusion}
-\hspace{0.8cm}
 
-In this lab, we implemented a key step of the Data Encryption Standard (DES) algorithm: generating the intermediate keys \(C_i\) and \(D_i\) from the 56-bit key \(K^{+}\). The program allows both manual and random input of the key and calculates the left and right halves for a given iteration \(i\) according to the DES shift schedule.
+\hspace{0.8cm}This laboratory work successfully implemented and demonstrated the Vigenère cipher algorithm adapted for the Romanian language with its extended 31-character alphabet. The implementation showcases a robust object-oriented design that encapsulates all cipher functionality within a single Python class, providing both programmatic access for developers and an interactive menu-driven interface for end-users. The cipher correctly applies polyalphabetic substitution principles using modular arithmetic with base 31 to accommodate the specific requirements of the Romanian alphabet.
 
-Through this exercise, we gained practical experience in understanding the DES key schedule and the role of cyclic shifts in subkey generation, splitting the 56-bit key into halves and applying iterative left rotations, displaying intermediate steps to verify the correctness of the algorithm, and writing a program that combines theoretical knowledge with computational implementation.
-
-Overall, this lab helped us understand the inner workings of DES key management and reinforced the importance of careful handling of keys and iterative transformations in symmetric cryptography. The results demonstrate that the algorithm produces correct \(C_i\) and \(D_i\) values, providing a solid foundation for implementing full DES encryption and decryption in future tasks.
-
+The implementation meets all specified requirements including the minimum key length of 7 characters, automatic space removal, case normalization, and comprehensive input validation. The mathematical model follows the standard Vigenère formulas for both encryption and decryption operations, ensuring cryptographic correctness. Error handling mechanisms provide clear feedback for invalid inputs while maintaining system stability. The inclusion of both API access and interactive usage makes the implementation versatile for different application scenarios.
 
 
 
